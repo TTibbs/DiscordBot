@@ -17,6 +17,8 @@ let bot = {
     owners: ["958064505567453184"]
 }
 
+const guildId = "990798637497999380"
+
 client.commands = new Discord.Collection()
 client.events = new Discord.Collection()
 client.slashcommands = new Discord.Collection()
@@ -29,21 +31,17 @@ client.loadEvents(bot, false)
 client.loadCommands(bot, false)
 client.loadSlashCommands(bot, false)
 
-client.on("interactionCreate", (interaction) => {
-    if (!interaction.isCommand()) return
-    if (!interaction.inGuild()) return interaction.reply("This command can only be used in a server")
-
-    const slashcmd = client.slashcommands.get(interaction.commandName)
-
-    if (!slashcmd) return interaction.reply("Invalid slash command")
-
-    if (slashcmd.perms && !interaction.member.permissions.has(slashcmd.perm))
-        return interaction.reply("You do not have permission to use this command")
-
-    slashcmd.run(client, interaction)
-})
-
 module.exports = bot
+
+client.on("ready", async () => {
+    const guild = client.guilds.cache.get(guildId)
+    if (!guild)
+        console.error("Target guild not found")
+
+        await guild.commands.set([...client.slashcommands.values()])
+        console.log(`Successfully loaded in ${client.slashcommands.size}`)
+        process.exit(0)
+})
 
 // client.on("ready", () => {
 //     console.log(`Bot Logged In as ${client.user.tag}`)
